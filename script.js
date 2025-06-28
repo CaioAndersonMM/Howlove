@@ -1,9 +1,6 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const modal = document.getElementById("modal");
-const modalText = document.getElementById("modal-text");
-
 const playerImg = new Image();
 playerImg.src = "assets/player.png";
 
@@ -125,10 +122,10 @@ function generateMaps() {
         }
     }
 
-    maps[0].data[0][0].type = "portal";
-    maps[0].data[0][0].color = "#ff6666";
+    maps[0].data[0][5].type = "obj:portal";
+    maps[0].data[0][5].color = "#ff6666";
 
-    maps[1].data[9][3].type = "portal";
+    maps[1].data[9][3].type = "obj:portal";
     maps[1].data[9][3].color = "#ff6666";
 
     // maps[0].data[4][4].type = "obj:computador:onStep";
@@ -233,11 +230,11 @@ function render() {
 
 function checkPortal() {
     const tile = map[Math.round(player.y)]?.[Math.round(player.x)];
-    if (tile?.type === "portal") {
+    if (tile?.type === "obj:portal") {
         let portalCoord = null;
         for (let y = 0; y < mapHeight; y++) {
             for (let x = 0; x < mapWidth; x++) {
-                if (map[y][x]?.type === "portal") {
+                if (map[y][x]?.type === "obj:portal") {
                     portalCoord = { x, y };
                     break;
                 }
