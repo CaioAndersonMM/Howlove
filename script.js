@@ -4,6 +4,38 @@ const ctx = canvas.getContext("2d");
 const modal = document.getElementById("modal");
 const modalText = document.getElementById("modal-text");
 
+const playerImg = new Image();
+playerImg.src = "assets/player.png";
+
+const player = {
+  x: 5,
+  y: 5,
+  frame: 0,
+  frameCount: 4,
+  frameWidth: 20,
+  frameHeight: 30,
+  animSpeed: 0.2,
+  animTimer: 0,
+  moving: false,
+  direction: "idle"
+};
+
+const playerSprites = {
+  idle: new Image(),
+  left: new Image(),
+  right: new Image(),
+  up: new Image(),
+  down: new Image()
+};
+
+playerSprites.idle.src = "assets/player.png";
+playerSprites.left.src = "assets/playerleft.png";
+playerSprites.right.src = "assets/playerright.png";
+playerSprites.up.src = "assets/player.png";
+playerSprites.down.src = "assets/playerdown.png";
+
+const target = { x: 5, y: 5 };
+
 const quadradimWidth = 64;
 const quadradimHeight = 32;
 const mapWidth = 10;
@@ -43,9 +75,8 @@ function generateMaps() {
     maps[1].data[9][3].type = "portal";
     maps[1].data[9][3].color = "#ff6666";
 
-    // Objetos interativos
-    maps[0].data[4][4].type = "obj:computador:onStep";
-    maps[0].data[4][4].color = "#9999ff";
+    // maps[0].data[4][4].type = "obj:computador:onStep";
+    // maps[0].data[4][4].color = "#9999ff";
 
     maps[0].data[6][3].type = "obj:livro:onClick";
     maps[0].data[6][3].color = "#ffcc00";
@@ -55,9 +86,6 @@ generateMaps();
 
 let currentMapIndex = 0;
 let map = maps[currentMapIndex].data;
-
-const player = { x: 5, y: 5 };
-const target = { x: 5, y: 5 };
 
 function cartToIso(x, y) {
     return {
@@ -94,10 +122,23 @@ function drawMap() {
 }
 
 function drawPlayer() {
-    const pos = cartToIso(player.x, player.y);
-    ctx.fillStyle = "blue";
-    ctx.fillRect(pos.x + quadradimWidth / 2 - 8, pos.y + quadradimHeight / 2 - 16, 16, 16);
+  const pos = cartToIso(player.x, player.y);
+  const spriteX = Math.floor(player.frame) * player.frameWidth;
+  
+  let currentSprite = playerSprites.idle;
+  if (player.direction !== "idle") {
+    currentSprite = playerSprites[player.direction];
+  }
+
+  ctx.drawImage(
+    currentSprite,
+    spriteX, 0, player.frameWidth, player.frameHeight,
+    pos.x + quadradimWidth / 2 - player.frameWidth / 2,
+    pos.y + quadradimHeight / 2 - player.frameHeight + 8,
+    player.frameWidth, player.frameHeight
+  );
 }
+
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
@@ -127,29 +168,66 @@ function checkPortal() {
 }
 
 function update() {
-    const speed = 0.05;
-    let moved = false;
+  const speed = 0.05;
+  let moved = false;
 
-    if (Math.abs(player.x - target.x) > speed) {
-        player.x += player.x < target.x ? speed : -speed;
-        moved = true;
-    } else {
-        player.x = target.x;
+  if (Math.abs(player.x - target.x) > speed) {
+    player.x += player.x < target.x ? speed : -speed;
+    moved = true;
+  } else {
+    player.x = target.x;
+  }
+
+  // Movimento em Y (vertical) - simultaneo com X
+  if (Math.abs(player.y - target.y) > speed) {
+    player.y += player.y < target.y ? speed : -speed;
+    moved = true;
+  } else {
+    player.y = target.y;
+  }
+
+  if (moved) {
+    const deltaX = target.x - player.x;
+    const deltaY = target.y - player.y;
+    
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      player.direction = deltaX > 0 ? "right" : "left";
+    } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      player.direction = deltaY > 0 ? "down" : "up";
+    } else if (Math.abs(deltaX) > speed) {
+      player.direction = deltaX > 0 ? "right" : "left";
+    } else if (Math.abs(deltaY) > speed) {
+      player.direction = deltaY > 0 ? "down" : "up";
     }
+  }
 
-    if (Math.abs(player.y - target.y) > speed) {
-        player.y += player.y < target.y ? speed : -speed;
-        moved = true;
-    } else {
-        player.y = target.y;
+  player.moving = moved;
+
+  if (moved) {
+    player.animTimer += player.animSpeed;
+    if (player.animTimer >= 1) {
+      player.frame = (player.frame + 1) % player.frameCount;
+      player.animTimer = 0;
     }
+  } else {
+    player.frame = 0;
+    player.direction = "idle";
+  }
 
-    if (!moved) {
-        checkPortal();
+  if (!moved) {
+    checkPortal();
+
+    const tile = map[Math.round(player.y)]?.[Math.round(player.x)];
+    if (tile?.type?.startsWith("obj:")) {
+      const [_, nome, modo] = tile.type.split(":");
+      if (modo === "onStep") {
+        openModal(`Você chegou até o(a) ${nome}`);
+      }
     }
+  }
 
-    render();
-    requestAnimationFrame(update);
+  render();
+  requestAnimationFrame(update);
 }
 
 canvas.addEventListener("click", (e) => {
