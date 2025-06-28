@@ -10,16 +10,34 @@ canvas {
   margin: 50px auto;
   border: 2px solid #ccc;
 }
-
 .menubar {
-  background-color: #e0e0e0;
-  margin: 0;
-  padding: 10px;
-  text-align: center;
-  display: flex; 
-  justify-content: center; 
-  margin-bottom: 20px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 14px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08), 0 1.5px 0 #fff inset;
+  border-radius: 0 0 12px 12px;
+  font-family: 'Tahoma', 'Verdana', Arial, sans-serif;
+  font-size: 1.08em;
+  gap: 18px;
+}
+
+.menubar a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+}
+
+.menubar a:hover, .menubar a:focus {
+  background: #e3f2fd;
+  color: #0d47a1;
+  transform: translateY(-2px) scale(1.06);
+  text-decoration: underline;
 }
 
 #modal {
@@ -77,4 +95,167 @@ canvas {
   color: #1976d2;
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.modal-info {
+  display: none;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #bdbdbd 100%);
+  border: 3px solid #757575;
+  border-radius: 12px;
+  padding: 22px 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 0 #fff inset;
+  z-index: 10;
+  font-family: 'Tahoma', 'Verdana', Arial, sans-serif;
+  color: #222;
+  font-size: 20px;
+  font-weight: bold;
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.modal-info p {
+  margin: 0;
+  padding: 0;
+}
+
+.modal-info p span {
+  font-weight: bold;
+  color: #424242;
+}
+
+.modal-info p a {
+  color: #212121;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.modal-info p a:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.modal-info p a:visited {
+  color: #757575;
+}
+
+.modal-info button {
+  margin: 8px 6px 0 6px;
+  padding: 8px 22px;
+  background: linear-gradient(180deg, #90a4ae 0%, #546e7a 100%);
+  border: 2px solid #546e7a;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  font-family: 'Tahoma', 'Verdana', Arial, sans-serif;
+  font-size: 1rem;
+  box-shadow: 0 2px 0 #eceff1 inset, 0 2px 6px rgba(0,0,0,0.12);
+  cursor: pointer;
+}
+
+.modal-info button:hover {
+  background: linear-gradient(180deg, #b0bec5 0%, #78909c 100%);
+  color: #546e7a;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.patch-notes-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    margin: 20px auto;
+    max-width: 1200px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.patch-notes-header {
+    background: linear-gradient(140deg, #030e3d 0%, #aa65f0 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.patch-notes-header h2 {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.close-patch-btn {
+    background: rgba(255, 255, 255, 0.89);
+    color: rgb(14, 1, 1);
+    border: 2px solid rgba(255, 255, 255, 0.795);
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.close-patch-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+.patch-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.patch-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-left: 4px solid #667eea;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.patch-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.patch-card h3 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+}
+
+.patch-card p {
+    color: #666;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.patch-card p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .patch-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .patch-notes-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .patch-notes-header h2 {
+        font-size: 1.4em;
+    }
 }
