@@ -1,0 +1,23 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+canvas {
+  background-color: #eefaff;
+  display: block;
+  margin: 50px auto;
+  border: 2px solid #ccc;
+}
+
+.menubar {
+  background-color: #e0e0e0;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+  display: flex; 
+  justify-content: center; 
+  margin-bottom: 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
