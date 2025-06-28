@@ -10,18 +10,78 @@
 <body>
     <nav class="menubar">
         <ul style="list-style: none; display: flex; gap: 30px; padding: 0; margin: 0;">
-            <li><a href="#" style="text-decoration: none; color: #333; font-weight: bold;">Início</a></li>
-            <li><a href="#" style="text-decoration: none; color: #333; font-weight: bold;">Sobre</a></li>
-            <li><a href="#" style="text-decoration: none; color: #333; font-weight: bold;">Contato</a></li>
+            <li>
+                <a href="#" style="text-decoration: none; color: #333; font-weight: bold;" onclick="openInfoModal('Bem-vindo ao Howlove!', 'Um jogo HTML feio e mal feito em desenvolvimento, proposto com pequenas atualizações para você acompanhar cada novidade e evolução do projeto.')">Início</a>
+            </li>
+            <li>
+                <a href="#" style="text-decoration: none; color: #333; font-weight: bold;" onclick="openInfoModal('Sobre o jogo', 'Uma aventura interativa inspirada no universo pixelado do Habbo Hotel, criado especialmente porque estou enamorado')">Sobre</a>
+            </li>
+            <li>
+                <a href="#" style="text-decoration: none; color: #333; font-weight: bold;" onclick="openInfoModal('Contato', 'Fale comigo para sugestões, feedbacks ou melhorias<br><br>caioandersonmartin@gmail.com<br>(84) 99936-3074')">Contato</a>
+            </li>
+            <li>
+                <a href="#patch-notes" style="text-decoration: none; color: #333; font-weight: bold;" onclick="openPatchNotesSection()">Patch Notes</a>
+            </li>
         </ul>
     </nav>
     <canvas id="game" width="800" height="600"></canvas>
-    <!-- Modal -->
+    
+    <div id="patch-notes" class="patch-notes-section" style="display: none;">
+        <div class="patch-notes-header">
+            <h2>📋 Patch Notes - Versão 0.1</h2>
+            <button onclick="closePatchNotes()" class="close-patch-btn">✖️ Fechar</button>
+        </div>
+        <div class="patch-cards">
+            <div class="patch-card">
+                <h3>🎮 Sistema de Movimento</h3>
+                <p>• Movimento isométrico mal feito</p>
+                <p>• Animações de caminhada com problema</p>
+            </div>
+            <div class="patch-card">
+                <h3>🎵 Sistema de Música</h3>
+                <p>• Jukebox interativa</p>
+                <p>• Controles de play/pause</p>
+                <p>• Navegação entre faixas</p>
+            </div>
+            <div class="patch-card">
+                <h3>🏠 Sistema de Mapas</h3>
+                <p>• 2 salas conectadas por portais</p>
+                <p>• Objetos interativos (livro, jukebox)</p>
+                <p>• Sistema de tiles isométricos feito por IA</p>
+            </div>
+            <div class="patch-card">
+                <h3>💬 Sistema de UI</h3>
+                <p>• Modais personalizados extremamente feios</p>
+                <p>• Interface da jukebox horrível</p>
+                <p>• Interações por clique e movimento</p>
+            </div>
+            <div class="patch-card">
+                <h3>🎨 Visual & Assets</h3>
+                <p>• Design inspirado no Habbo Hotel (deveria)</p>
+                <p>• Sprites do personagem em 4 direções (bugado)</p>
+                <p>• Tentativa de fazer em pixel</p>
+            </div>
+            <div class="patch-card">
+                <h3>🔧 Código & Estrutura</h3>
+                <p>• Quase tudo feito por IA</p>
+                <p>• Código modularizado</p>
+                <p>• Organização em componentes</p>
+                <p>• Sem comentários e sem documentação</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais -->
     <div id="modal">
         <p id="modal-text">Você interagiu com um objeto!</p>
         <button onclick="">Usar</button>
         <button onclick="closeModal()">Fechar</button>
     </div>
+    <div class="modal-info">
+        <p class="modal-text-info">Você interagiu com um objeto!</p>
+        <button onclick="closeInfoModal()">Entendi</button>
+    </div>
+    <script src="ui-system.js"></script>
     <script src="script.js"></script>
 </body>
 
