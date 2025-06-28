@@ -1,10 +1,21 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+const modal = document.getElementById("modal");
+const modalText = document.getElementById("modal-text");
+
 const quadradimWidth = 64;
 const quadradimHeight = 32;
 const mapWidth = 10;
 const mapHeight = 10;
+
+function openModal(text) {
+    modalText.textContent = text;
+    modal.style.display = "block";
+}
+function closeModal() {
+    modal.style.display = "none";
+}
 
 const maps = [
     { name: "Sala Inicial", data: [] },
@@ -31,6 +42,13 @@ function generateMaps() {
 
     maps[1].data[9][3].type = "portal";
     maps[1].data[9][3].color = "#ff6666";
+
+    // Objetos interativos
+    maps[0].data[4][4].type = "obj:computador:onStep";
+    maps[0].data[4][4].color = "#9999ff";
+
+    maps[0].data[6][3].type = "obj:livro:onClick";
+    maps[0].data[6][3].color = "#ffcc00";
 }
 
 generateMaps();
@@ -141,6 +159,23 @@ canvas.addEventListener("click", (e) => {
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
             if (isPointConvert(mouseX, mouseY, x, y)) {
+                const tile = map[y][x];
+
+                if (tile.type.startsWith("obj:")) {
+                    const [_, nome, modo] = tile.type.split(":");
+
+                    if (modo === "onClick") {
+                        openModal(`Você clicou em um(a) ${nome}`);
+                        return;
+                    }
+
+                    closeModal();
+                    target.x = x;
+                    target.y = y;
+                    return;
+                }
+
+                closeModal();
                 target.x = x;
                 target.y = y;
                 return;
