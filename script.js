@@ -16,12 +16,22 @@ for (let y = 0; y < mapHeight; y++) {
 }
 
 const player = { x: 0, y: 0 };
+const target = { x: 0, y: 0 };
 
 function cartToIso(x, y) {
   return {
     x: (x - y) * quadradimWidth / 2 + canvas.width / 2,
     y: (x + y) * quadradimHeight / 2
   };
+}
+
+function isPointConvert(px, py, tileX, tileY) {
+  const iso = cartToIso(tileX, tileY);
+  const centerX = iso.x + quadradimWidth / 2;
+  const centerY = iso.y + quadradimHeight / 2;
+  const dx = Math.abs(px - centerX);
+  const dy = Math.abs(py - centerY);
+  return dx / (quadradimWidth / 2) + dy / (quadradimHeight / 2) <= 1;
 }
 
 function drawTile(tile) {
@@ -50,4 +60,41 @@ function render() {
   drawPlayer();
 }
 
-render();
+function update() {
+  const speed = 0.05;
+  let moved = false;
+
+  if (Math.abs(player.x - target.x) > speed) {
+    player.x += player.x < target.x ? speed : -speed;
+    moved = true;
+  } else {
+    player.x = target.x;
+  }
+
+  if (Math.abs(player.y - target.y) > speed) {
+    player.y += player.y < target.y ? speed : -speed;
+    moved = true;
+  } else {
+    player.y = target.y;
+  }
+
+  render();
+  requestAnimationFrame(update);
+}
+
+canvas.addEventListener("click", (e) => {
+  const mouseX = e.offsetX;
+  const mouseY = e.offsetY;
+
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      if (isPointConvert(mouseX, mouseY, x, y)) {
+        target.x = x;
+        target.y = y;
+        return;
+      }
+    }
+  }
+});
+
+update();
