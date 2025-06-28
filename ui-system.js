@@ -50,7 +50,7 @@ const UISystem = {
         padding:8px 12px;
         background:#ffcc00;
         color:#000;
-        border:2px solid #ffcc00;
+        border:2px solidrgb(0, 26, 255);
         border-radius:6px;
         cursor:pointer;
         font-weight:bold;
@@ -62,8 +62,8 @@ const UISystem = {
     },
     default: {
       container: `
-        background:#fffbe6;
-        border:2px solid #ffcc00;
+        background:#fff;
+        border:2px solidrgb(17, 0, 255);
         border-radius:8px;
         padding:12px 16px;
         box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -160,4 +160,44 @@ function openModal(title, content = "", isJukebox = false) {
 
 function closeModal() {
   UISystem.close();
+}
+
+function openInfoModal(title, message) {
+    const modal = document.getElementsByClassName("modal-info")[0];
+    const modalText = document.getElementsByClassName("modal-text-info")[0];
+    
+    if (!modal || !modalText) {
+        console.error("Elementos do modal-info não encontrados!");
+        console.log("modal:", modal, "modalText:", modalText);
+        return;
+    }
+    
+    modalText.innerHTML = UISystem.createDefaultModal(title, message);
+    modal.style.display = "block";
+}
+
+function closeInfoModal() {
+    const modal = document.getElementsByClassName("modal-info")[0];
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Funções para Patch Notes
+function openPatchNotesSection() {
+    const patchNotesSection = document.getElementById("patch-notes");
+    if (patchNotesSection) {
+        patchNotesSection.style.display = "block";
+        // Scroll suave para a seção
+        patchNotesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function closePatchNotes() {
+    const patchNotesSection = document.getElementById("patch-notes");
+    if (patchNotesSection) {
+        patchNotesSection.style.display = "none";
+        // Volta para o topo da página
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 }
