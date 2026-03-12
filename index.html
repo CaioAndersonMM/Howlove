@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Howlove: The Game</title>
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -24,50 +25,110 @@
             </li>
         </ul>
     </nav>
+
     <canvas id="game" width="800" height="600"></canvas>
     
     <div id="patch-notes" class="patch-notes-section" style="display: none;">
         <div class="patch-notes-header">
-            <h2>📋 Patch Notes - Versão 0.1</h2>
+            <h2>📜 Histórico de Atualizações</h2>
             <button onclick="closePatchNotes()" class="close-patch-btn">✖️ Fechar</button>
         </div>
-        <div class="patch-cards">
-            <div class="patch-card">
-                <h3>🎮 Sistema de Movimento</h3>
-                <p>• Movimento isométrico mal feito</p>
-                <p>• Animações de caminhada com problema</p>
+        
+        <div class="patch-history-container" style="max-height: 450px; overflow-y: auto; padding: 15px;">
+            
+            <!-- Versão 0.4 -->
+            <div class="patch-version-block" style="margin-bottom: 40px; border-left: 4px solid #673ab7; padding-left: 20px;">
+                <h3 style="color: #673ab7; margin-top: 0;">Versão 0.4 - Atmosfera Espacial</h3>
+                <div class="patch-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">🌌 Efeitos de Fundo</h4>
+                        <div class="sub-patch-group" style="margin-top: 10px;">
+                            <p><b>• Estrelas</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Adição de partículas estelares pulsantes em parallax.</p>
+                            <p><b>• Meteoros</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Sistema aleatório de estrelas cadentes cruzando o céu.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="patch-card">
-                <h3>🎵 Sistema de Música</h3>
-                <p>• Jukebox interativa</p>
-                <p>• Controles de play/pause</p>
-                <p>• Navegação entre faixas</p>
+
+            <!-- Versão 0.3 -->
+            <div class="patch-version-block" style="margin-bottom: 40px; border-left: 4px solid #2196f3; padding-left: 20px;">
+                <h3 style="color: #2196f3; margin-top: 0;">Versão 0.3 - Polimento Visual</h3>
+                <div class="patch-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">🎨 Interface & UX</h4>
+                        <div class="sub-patch-group" style="margin-top: 10px;">
+                            <p><b>• Menubar</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Correção de cores (precisa melhorar)</p>
+                            <p><b>• Patch Notes</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Nova estrutura para exibição das atualizações em histórico</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="patch-card">
-                <h3>🏠 Sistema de Mapas</h3>
-                <p>• 2 salas conectadas por portais</p>
-                <p>• Objetos interativos (livro, jukebox)</p>
-                <p>• Sistema de tiles isométricos feito por IA</p>
+
+
+            <!-- Versão 0.2 -->
+            <div class="patch-version-block" style="margin-bottom: 40px; border-left: 4px solid #4caf50; padding-left: 20px;">
+                <h3 style="color: #4caf50; margin-top: 0;">Versão 0.2 - Paredes e Profundidade</h3>
+                <div class="patch-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px;">🧱 Arquitetura do Mapa</h4>
+                        <div class="sub-patch-group" style="margin-top: 10px;">
+                            <p><b>• Paredes</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Renderização de paredes laterais para dar profundidade ao cenário.</p>
+                            <p><b>• Profundidade</b></p>
+                            <p style="font-size: 0.9em; padding-left: 10px; color: #666;">- Ajuste fino para os objetos parecerem fixados ao chão.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="patch-card">
-                <h3>💬 Sistema de UI</h3>
-                <p>• Modais personalizados extremamente feios</p>
-                <p>• Interface da jukebox horrível</p>
-                <p>• Interações por clique e movimento</p>
+
+            <!-- Versão 0.1 -->
+            <div class="patch-version-block" style="margin-bottom: 10px; border-left: 4px solid #9e9e9e; padding-left: 20px;">
+                <h3 style="color: #757575; margin-top: 0;">Versão 0.1 - O Início</h3>
+                <div class="patch-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <!-- Card de Movimento -->
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">🎮 Sistema de Movimento</h4>
+                        <p style="margin: 5px 0;">• Movimento isométrico mal feito</p>
+                        <p style="margin: 5px 0;">• Animações de caminhada com problema</p>
+                    </div>
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">🎵 Sistema de Música</h4>
+                        <p style="margin: 5px 0;">• Jukebox interativa</p>
+                        <p style="margin: 5px 0;">• Controles de play/pause</p>
+                        <p style="margin: 5px 0;">• Navegação entre faixas</p>
+                    </div>
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">🏠 Sistema de Mapas</h4>
+                        <p style="margin: 5px 0;">• Salas conectadas por portais</p>
+                        <p style="margin: 5px 0;">• Objetos interativos (livro, jukebox)</p>
+                        <p style="margin: 5px 0;">• Tiles isométricos (mentira)</p>
+                    </div>
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">💬 Sistema de UI</h4>
+                        <p style="margin: 5px 0;">• Modais personalizados extremamente feios</p>
+                        <p style="margin: 5px 0;">• Interface da jukebox horrível</p>
+                        <p style="margin: 5px 0;">• Interações por clique e movimento</p>
+                    </div>
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">🎨 Visual & Assets</h4>
+                        <p style="margin: 5px 0;">• Design inspirado no Habbo Hotel (deveria)</p>
+                        <p style="margin: 5px 0;">• Sprites do personagem em 4 direções (bugado)</p>
+                        <p style="margin: 5px 0;">• Tentativa de fazer em pixel</p>
+                    </div>
+                    <div class="patch-card" style="background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; flex: 1; min-width: 250px;">
+                        <h4 style="margin: 0 0 10px 0;">🔧 Código & Estrutura</h4>
+                        <p style="margin: 5px 0;">• Quase tudo feito por IA</p>
+                        <p style="margin: 5px 0;">• Código modularizado</p>
+                        <p style="margin: 5px 0;">• Organização em componentes</p>
+                        <p style="margin: 5px 0;">• Sem comentários e sem documentação</p>
+                    </div>
+                </div>
             </div>
-            <div class="patch-card">
-                <h3>🎨 Visual & Assets</h3>
-                <p>• Design inspirado no Habbo Hotel (deveria)</p>
-                <p>• Sprites do personagem em 4 direções (bugado)</p>
-                <p>• Tentativa de fazer em pixel</p>
-            </div>
-            <div class="patch-card">
-                <h3>🔧 Código & Estrutura</h3>
-                <p>• Quase tudo feito por IA</p>
-                <p>• Código modularizado</p>
-                <p>• Organização em componentes</p>
-                <p>• Sem comentários e sem documentação</p>
-            </div>
+
         </div>
     </div>
 
@@ -81,6 +142,7 @@
         <p class="modal-text-info">Você interagiu com um objeto!</p>
         <button onclick="closeInfoModal()">Entendi</button>
     </div>
+
     <script src="ui-system.js"></script>
     <script src="script.js"></script>
 </body>
