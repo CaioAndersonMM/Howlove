@@ -1,6 +1,65 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+// --- SISTEMA DE ESTRELAS E FUNDO ---
+const stars = [];
+const meteors = [];
+
+// Inicialização das estrelas
+for (let i = 0; i < 150; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5,
+        opacity: Math.random(),
+        speed: 0.005 + Math.random() * 0.02
+    });
+}
+
+function drawAnimatedBackground() {
+    // Fundo espacial (Azul profundo)
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#050b18");
+    grad.addColorStop(1, "#112244");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Brilho das estrelas
+    ctx.fillStyle = "white";
+    stars.forEach(s => {
+        s.opacity += s.speed;
+        if (s.opacity > 1 || s.opacity < 0.2) s.speed *= -1;
+        ctx.globalAlpha = Math.max(0, s.opacity);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // Estrelas cadentes
+    if (Math.random() < 0.01) {
+        meteors.push({
+            x: Math.random() * (canvas.width * 0.7),
+            y: 0,
+            len: 60,
+            speed: 12
+        });
+    }
+
+    meteors.forEach((m, i) => {
+        m.x += m.speed;
+        m.y += m.speed;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - m.len, m.y - m.len);
+        ctx.stroke();
+        if (m.y > canvas.height + 100) meteors.splice(i, 1);
+    });
+}
+
+// --- CONFIGURAÇÕES DO JOGADOR ---
 const playerImg = new Image();
 playerImg.src = "assets/player.png";
 
@@ -34,7 +93,6 @@ objectNames.forEach(name => {
     objectSprites[name] = img;
 });
 
-
 playerSprites.idle.src = "assets/player.png";
 playerSprites.left.src = "assets/playerleft.png";
 playerSprites.right.src = "assets/playerright.png";
@@ -43,6 +101,7 @@ playerSprites.down.src = "assets/playerdown.png";
 
 const target = { x: 5, y: 5 };
 
+// --- SISTEMA DE MÚSICA ---
 const musicSystem = {
     currentTrack: 0,
     isPlaying: false,
@@ -97,7 +156,7 @@ const musicSystem = {
 
 musicSystem.init();
 
-// -- Mapa e Paredes ---
+// --- MAPA E PAREDES ---
 const quadradimWidth = 64;
 const quadradimHeight = 32;
 const wallHeight = 70;
@@ -132,9 +191,6 @@ function generateMaps() {
     maps[1].data[9][3].type = "obj:portal";
     maps[1].data[9][3].color = "#ff6666";
 
-    // maps[0].data[4][4].type = "obj:computador:onStep";
-    // maps[0].data[4][4].color = "#9999ff";
-
     maps[0].data[6][3].type = "obj:livro:onClick:Não é um livro qualquer, mas não tem nada aqui ainda, meu amor";
     maps[0].data[6][3].color = "#ffcc00";
 
@@ -143,7 +199,6 @@ function generateMaps() {
 
     maps[0].data[0][8].type = "obj:jukebox:onClick";
     maps[0].data[0][8].color = "#ffcc00";
-
 }
 
 generateMaps();
@@ -170,7 +225,6 @@ function isPointConvert(px, py, tileX, tileY) {
 function drawTile(tile) {
     const { x, y } = cartToIso(tile.x, tile.y);
     
-    // Parede Y (Lado direito visual, mas eixo Y=0)
     if (tile.hasWallY) {
         ctx.fillStyle = "#a8c0d8";
         ctx.beginPath();
@@ -183,9 +237,8 @@ function drawTile(tile) {
         ctx.stroke();
     }
     
-    // Parede X (Lado esquerdo visual, mas eixo X=0)
     if (tile.hasWallX) {
-        ctx.fillStyle = "#8da3ba"; // Tom mais escuro
+        ctx.fillStyle = "#8da3ba";
         ctx.beginPath();
         ctx.moveTo(x, y + quadradimHeight / 2);
         ctx.lineTo(x + quadradimWidth / 2, y);
@@ -196,7 +249,6 @@ function drawTile(tile) {
         ctx.stroke();
     }
 
-    // Chão
     ctx.beginPath();
     ctx.moveTo(x, y + quadradimHeight / 2);
     ctx.lineTo(x + quadradimWidth / 2, y);
@@ -215,15 +267,12 @@ function drawMap() {
 
         if (tile.type.startsWith("obj:")) {
             const [_, nome] = tile.type.split(":");
-
             const sprite = objectSprites[nome];
             if (sprite && sprite.complete && sprite.naturalHeight > 0) {
                 const pos = cartToIso(tile.x, tile.y);
-
-
-                width = 50;
-                height = 56;
-                offsetY = -45;
+                const width = 50;
+                const height = 56;
+                const offsetY = -45;
 
                 ctx.drawImage(
                     sprite,
@@ -254,8 +303,12 @@ function drawPlayer() {
     );
 }
 
+// --- RENDERIZAÇÃO E ATUALIZAÇÃO ---
 function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Desenha primeiro o fundo estrelado animado
+    drawAnimatedBackground();
+    
+    // Depois desenha o jogo isométrico por cima
     drawMap();
     drawPlayer();
 }
@@ -308,10 +361,6 @@ function update() {
             player.direction = deltaX > 0 ? "right" : "left";
         } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
             player.direction = deltaY > 0 ? "down" : "up";
-        } else if (Math.abs(deltaX) > speed) {
-            player.direction = deltaX > 0 ? "right" : "left";
-        } else if (Math.abs(deltaY) > speed) {
-            player.direction = deltaY > 0 ? "down" : "up";
         }
     }
 
@@ -330,7 +379,6 @@ function update() {
 
     if (!moved) {
         checkPortal();
-
         const tile = map[Math.round(player.y)]?.[Math.round(player.x)];
         if (tile?.type?.startsWith("obj:")) {
             const [_, nome, modo] = tile.type.split(":");
@@ -344,6 +392,7 @@ function update() {
     requestAnimationFrame(update);
 }
 
+// --- EVENTOS E UI ---
 canvas.addEventListener("click", (e) => {
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
@@ -364,11 +413,6 @@ canvas.addEventListener("click", (e) => {
                         }
                         return;
                     }
-
-                    closeModal();
-                    target.x = x;
-                    target.y = y;
-                    return;
                 }
 
                 closeModal();
@@ -380,4 +424,16 @@ canvas.addEventListener("click", (e) => {
     }
 });
 
-update();
+// Funções de UI
+function openPatchNotesSection() { document.getElementById('patch-notes').style.display = 'block'; }
+function closePatchNotes() { document.getElementById('patch-notes').style.display = 'none'; }
+function openInfoModal(t, txt) { 
+    const m = document.querySelector('.modal-info');
+    m.style.display = 'block';
+    m.querySelector('.modal-text-info').innerHTML = `<b>${t}</b><br>${txt}`;
+}
+function closeInfoModal() { document.querySelector('.modal-info').style.display = 'none'; }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+// Início do Game Loop
+window.onload = update;
