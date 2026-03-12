@@ -97,8 +97,10 @@ const musicSystem = {
 
 musicSystem.init();
 
+// -- Mapa e Paredes ---
 const quadradimWidth = 64;
 const quadradimHeight = 32;
+const wallHeight = 70;
 const mapWidth = 10;
 const mapHeight = 10;
 
@@ -116,7 +118,9 @@ function generateMaps() {
                     x,
                     y,
                     type: "normal",
-                    color: m === 0 ? "#cceeff" : "#d2f0d2"
+                    color: m === 0 ? "#cceeff" : "#d2f0d2",
+                    hasWallX: (x === 0), 
+                    hasWallY: (y === 0)
                 };
             }
         }
@@ -150,7 +154,7 @@ let map = maps[currentMapIndex].data;
 function cartToIso(x, y) {
     return {
         x: (x - y) * quadradimWidth / 2 + canvas.width / 2,
-        y: (x + y) * quadradimHeight / 2
+        y: (x + y) * quadradimHeight / 2 + 100
     };
 }
 
@@ -165,6 +169,34 @@ function isPointConvert(px, py, tileX, tileY) {
 
 function drawTile(tile) {
     const { x, y } = cartToIso(tile.x, tile.y);
+    
+    // Parede Y (Lado direito visual, mas eixo Y=0)
+    if (tile.hasWallY) {
+        ctx.fillStyle = "#a8c0d8";
+        ctx.beginPath();
+        ctx.moveTo(x + quadradimWidth / 2, y);
+        ctx.lineTo(x + quadradimWidth, y + quadradimHeight / 2);
+        ctx.lineTo(x + quadradimWidth, y + quadradimHeight / 2 - wallHeight);
+        ctx.lineTo(x + quadradimWidth / 2, y - wallHeight);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.1)";
+        ctx.stroke();
+    }
+    
+    // Parede X (Lado esquerdo visual, mas eixo X=0)
+    if (tile.hasWallX) {
+        ctx.fillStyle = "#8da3ba"; // Tom mais escuro
+        ctx.beginPath();
+        ctx.moveTo(x, y + quadradimHeight / 2);
+        ctx.lineTo(x + quadradimWidth / 2, y);
+        ctx.lineTo(x + quadradimWidth / 2, y - wallHeight);
+        ctx.lineTo(x, y + quadradimHeight / 2 - wallHeight);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.1)";
+        ctx.stroke();
+    }
+
+    // Chão
     ctx.beginPath();
     ctx.moveTo(x, y + quadradimHeight / 2);
     ctx.lineTo(x + quadradimWidth / 2, y);
@@ -173,7 +205,7 @@ function drawTile(tile) {
     ctx.closePath();
     ctx.fillStyle = tile.color;
     ctx.fill();
-    ctx.strokeStyle = "#888";
+    ctx.strokeStyle = "rgba(0,0,0,0.1)";
     ctx.stroke();
 }
 
@@ -191,7 +223,7 @@ function drawMap() {
 
                 width = 50;
                 height = 56;
-                offsetY = -56;
+                offsetY = -45;
 
                 ctx.drawImage(
                     sprite,
