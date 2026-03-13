@@ -121,19 +121,25 @@ const musicSystem = {
     ],
 
     init() {
+        // Jukebox audio
         this.audio = new Audio();
         this.audio.loop = true;
         this.audio.volume = 0.7;
         this.loadTrack(0);
+
+        // Background audio (música de fundo)
         this.backgroundAudio = new Audio();
         this.backgroundAudio.src = "assets/aquelasaudade.mp3";
         this.backgroundAudio.loop = true;
-        this.backgroundAudio.volume = 0.2; 
+        this.backgroundAudio.volume = 0.15; // Volume baixinho
+        
+        // Inicia música de fundo automaticamente
         this.startBackgroundMusic();
     },
 
     startBackgroundMusic() {
         this.backgroundAudio.play().catch(e => {
+            // Se o navegador bloquear, toca no primeiro clique
             document.addEventListener('click', () => {
                 this.backgroundAudio.play().catch(console.log);
             }, { once: true });
@@ -239,11 +245,9 @@ function cartToIso(x, y) {
 function isPointInWall(px, py, x, y, side) {
     const pos = cartToIso(x, y);
     if (side === 'y') {
-        // Área de clique mais larga para quadros na parede Y
-        return px >= pos.x + 38 && px <= pos.x + 62 && py >= pos.y - 65 && py <= pos.y + 0;
+        return px >= pos.x + 40 && px <= pos.x + 62 && py >= pos.y - 65 && py <= pos.y + 0;
     } else {
-        // Área de clique mais larga para quadros na parede X
-        return px >= pos.x + 2 && px <= pos.x + 26 && py >= pos.y - 65 && py <= pos.y + 0;
+        return px >= pos.x + 2 && px <= pos.x + 24 && py >= pos.y - 65 && py <= pos.y + 0;
     }
 }
 
@@ -262,44 +266,42 @@ function drawFrameOnWall(x, y, side, artId) {
 
     ctx.save();
     if (side === 'y') {
-        // Moldura mais larga (aumentei de 18px para 24px de largura)
         ctx.fillStyle = "#331a00"; // Cor de madeira mais escura
         ctx.beginPath();
-        ctx.moveTo(pos.x + 38, pos.y - 8); ctx.lineTo(pos.x + 62, pos.y - 0);
-        ctx.lineTo(pos.x + 62, pos.y - 57); ctx.lineTo(pos.x + 38, pos.y - 65);
+        ctx.moveTo(pos.x + 42, pos.y - 10); ctx.lineTo(pos.x + 60, pos.y - 2);
+        ctx.lineTo(pos.x + 60, pos.y - 55); ctx.lineTo(pos.x + 42, pos.y - 63);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.5)";
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Imagem (Preview real ampliado e mais largo)
+        // Imagem (Preview real ampliado)
         if (img && img.complete) {
             ctx.beginPath();
-            ctx.moveTo(pos.x + 41, pos.y - 13); ctx.lineTo(pos.x + 59, pos.y - 8);
-            ctx.lineTo(pos.x + 59, pos.y - 52); ctx.lineTo(pos.x + 41, pos.y - 57);
+            ctx.moveTo(pos.x + 45, pos.y - 15); ctx.lineTo(pos.x + 57, pos.y - 10);
+            ctx.lineTo(pos.x + 57, pos.y - 50); ctx.lineTo(pos.x + 45, pos.y - 55);
             ctx.clip();
-            ctx.drawImage(img, pos.x + 41, pos.y - 57, 18, 49);
+            ctx.drawImage(img, pos.x + 45, pos.y - 55, 12, 45);
         }
     } else {
-        // Moldura mais larga na parede X
         ctx.fillStyle = "#331a00";
         ctx.beginPath();
-        ctx.moveTo(pos.x + 2, pos.y - 0); ctx.lineTo(pos.x + 26, pos.y - 8);
-        ctx.lineTo(pos.x + 26, pos.y - 65); ctx.lineTo(pos.x + 2, pos.y - 57);
+        ctx.moveTo(pos.x + 4, pos.y - 2); ctx.lineTo(pos.x + 22, pos.y - 10);
+        ctx.lineTo(pos.x + 22, pos.y - 63); ctx.lineTo(pos.x + 4, pos.y - 55);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.5)";
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Imagem (Preview real ampliado e mais largo)
+        // Imagem (Preview real ampliado)
         if (img && img.complete) {
             ctx.beginPath();
-            ctx.moveTo(pos.x + 5, pos.y - 8); ctx.lineTo(pos.x + 23, pos.y - 13);
-            ctx.lineTo(pos.x + 23, pos.y - 57); ctx.lineTo(pos.x + 5, pos.y - 52);
+            ctx.moveTo(pos.x + 7, pos.y - 10); ctx.lineTo(pos.x + 19, pos.y - 15);
+            ctx.lineTo(pos.x + 19, pos.y - 55); ctx.lineTo(pos.x + 7, pos.y - 50);
             ctx.clip();
-            ctx.drawImage(img, pos.x + 5, pos.y - 57, 18, 49);
+            ctx.drawImage(img, pos.x + 7, pos.y - 55, 12, 45);
         }
     }
     ctx.restore();
@@ -535,17 +537,46 @@ function openInfoModal(t, txt) {
 function closeInfoModal() { document.querySelector('.modal-info').style.display = 'none'; }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
+// Função para abrir modal de quadros
+function openFrameModal(imageUrl, title, description) {
+    const modal = document.getElementById('modal');
+    const modalText = document.getElementById('modal-text');
+    
+    modalText.innerHTML = `
+        <div style="text-align: center;">
+            <div style="font-size: 1.3em; margin-bottom: 12px; font-weight: bold;">
+                🖼️ ${title}
+            </div>
+            <div style="margin: 12px 0;">
+                <img src="${imageUrl}" 
+                     style="max-width: 280px; max-height: 200px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
+                     alt="${title}">
+            </div>
+            <div style="font-size: 0.95em; margin-top: 10px; line-height: 1.3;">
+                ${description}
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+// Controle da música de fundo
 function toggleBackgroundMusic() {
     const statusSpan = document.getElementById('bg-music-status');
     
     if (musicSystem.backgroundAudio.paused) {
         musicSystem.backgroundAudio.play().catch(console.log);
-        statusSpan.textContent = 'ON';
-        statusSpan.style.color = '#4caf50';
+        if (statusSpan) {
+            statusSpan.textContent = 'ON';
+            statusSpan.style.color = '#4caf50';
+        }
     } else {
         musicSystem.backgroundAudio.pause();
-        statusSpan.textContent = 'OFF';
-        statusSpan.style.color = '#f44336';
+        if (statusSpan) {
+            statusSpan.textContent = 'OFF';
+            statusSpan.style.color = '#f44336';
+        }
     }
 }
 
