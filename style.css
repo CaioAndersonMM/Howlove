@@ -308,13 +308,48 @@ button {
   border: 1px solid #e2e8f0;
 }
 
-@media (max-width: 768px) {
-  .menubar ul {
-    gap: 0;
-  }
+/* Controle de Música de Fundo */
+#background-music-control {
+    transition: opacity 0.3s ease;
+}
 
-  .menubar a {
-    padding: 15px;
-    font-size: 0.8rem;
-  }
+#background-music-control:hover {
+    opacity: 0.9;
+}
+
+#background-music-control button {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#background-music-control button:hover {
+    background: rgba(0,0,0,0.8) !important;
+    transform: scale(1.05);
+}
+
+#bg-music-status {
+    font-weight: bold;
+    color: #4caf50;
+}
+
+/* Responsivo para mobile */
+@media (max-width: 768px) {
+    .menubar ul {
+        gap: 0;
+    }
+
+    .menubar a {
+        padding: 15px;
+        font-size: 0.8rem;
+    }
+
+    #background-music-control {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    #background-music-control button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
 }
