@@ -2,11 +2,11 @@ const artGallery = {
     "quadro1": {
         url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvlaHTBhTenZXx-WBF7egCPtvUFihjCBh8Tg&s",
         title: "O amor imortal",
-        description: "Cruzando oceanos do tempo para encontrar aquilo que é eterno"
+        description: "Cruzando oceanos do tempo para [...]"
     },
     "quadro2": {
-        url: "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?q=80&w=500",
-        title: "O Vazio Azul",
-        description: "..."
+        url: "assets/azul.jpg",
+        title: "O azul",
+        description: "Muitos dos homens nunca tocarão a profunda cor do amor verdadeiro, mas aquele que mergulha no mar do amor encontra um tesouro que nunca se esgota"
     }
 };
