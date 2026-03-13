@@ -1,28 +1,93 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+// --- 1. Artes - quadrosposts.js ---
+
+const artImages = {};
+function preloadArt() {
+    // Verifica se a galeria existe no arquivo externo quadrosposts.js
+    if (typeof artGallery !== 'undefined') {
+        Object.keys(artGallery).forEach(id => {
+            const img = new Image();
+            img.src = artGallery[id].url;
+            artImages[id] = img;
+        });
+    } else {
+        console.warn("Aviso: 'artGallery' não encontrada. Verifique o arquivo quadrosposts.js.");
+    }
+}
+
+// --- 2. SISTEMA DE ESTRELAS E FUNDO ---
+const stars = [];
+const meteors = [];
+
+for (let i = 0; i < 150; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5,
+        opacity: Math.random(),
+        speed: 0.005 + Math.random() * 0.02
+    });
+}
+
+function drawAnimatedBackground() {
+    // Fundo espacial (Azul profundo)
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#050b18");
+    grad.addColorStop(1, "#112244");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Brilho das estrelas
+    ctx.fillStyle = "white";
+    stars.forEach(s => {
+        s.opacity += s.speed;
+        if (s.opacity > 1 || s.opacity < 0.2) s.speed *= -1;
+        ctx.globalAlpha = Math.max(0, s.opacity);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // Estrelas cadentes
+    if (Math.random() < 0.01) {
+        meteors.push({
+            x: Math.random() * (canvas.width * 0.7),
+            y: 0,
+            len: 60,
+            speed: 12
+        });
+    }
+
+    meteors.forEach((m, i) => {
+        m.x += m.speed;
+        m.y += m.speed;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - m.len, m.y - m.len);
+        ctx.stroke();
+        if (m.y > canvas.height + 100) meteors.splice(i, 1);
+    });
+}
+
+// --- 3. CONFIGURAÇÕES DO JOGADOR E OBJETOS ---
 const playerImg = new Image();
 playerImg.src = "assets/player.png";
 
 const player = {
-    x: 5,
-    y: 5,
-    frame: 0,
-    frameCount: 4,
-    frameWidth: 20,
-    frameHeight: 30,
-    animSpeed: 0.2,
-    animTimer: 0,
-    moving: false,
-    direction: "idle"
+    x: 5, y: 5,
+    frame: 0, frameCount: 4,
+    frameWidth: 20, frameHeight: 30,
+    animSpeed: 0.2, animTimer: 0,
+    moving: false, direction: "idle"
 };
 
 const playerSprites = {
-    idle: new Image(),
-    left: new Image(),
-    right: new Image(),
-    up: new Image(),
-    down: new Image()
+    idle: new Image(), left: new Image(), right: new Image(), up: new Image(), down: new Image()
 };
 
 const objectSprites = {};
@@ -34,7 +99,6 @@ objectNames.forEach(name => {
     objectSprites[name] = img;
 });
 
-
 playerSprites.idle.src = "assets/player.png";
 playerSprites.left.src = "assets/playerleft.png";
 playerSprites.right.src = "assets/playerright.png";
@@ -43,10 +107,12 @@ playerSprites.down.src = "assets/playerdown.png";
 
 const target = { x: 5, y: 5 };
 
+// --- 4. SISTEMA DE MÚSICA ---
 const musicSystem = {
     currentTrack: 0,
     isPlaying: false,
     audio: null,
+    backgroundAudio: null,
     tracks: [
         { name: "PARTY N ONE", artist: "Arctic Monkeys", file: "party.mp3" },
         { name: "Do I Wanna Know?", artist: "Arctic Monkeys", file: "doiwannaknow.mp3" },
@@ -55,10 +121,29 @@ const musicSystem = {
     ],
 
     init() {
+        // Jukebox audio
         this.audio = new Audio();
         this.audio.loop = true;
         this.audio.volume = 0.7;
         this.loadTrack(0);
+
+        // Background audio (música de fundo)
+        this.backgroundAudio = new Audio();
+        this.backgroundAudio.src = "assets/aquelasaudade.mp3";
+        this.backgroundAudio.loop = true;
+        this.backgroundAudio.volume = 0.15; // Volume baixinho
+        
+        // Inicia música de fundo automaticamente
+        this.startBackgroundMusic();
+    },
+
+    startBackgroundMusic() {
+        this.backgroundAudio.play().catch(e => {
+            // Se o navegador bloquear, toca no primeiro clique
+            document.addEventListener('click', () => {
+                this.backgroundAudio.play().catch(console.log);
+            }, { once: true });
+        });
     },
 
     loadTrack(index) {
@@ -69,6 +154,11 @@ const musicSystem = {
     },
 
     play() {
+        // Pausa a música de fundo quando a jukebox toca
+        if (this.backgroundAudio && !this.backgroundAudio.paused) {
+            this.backgroundAudio.pause();
+        }
+        
         this.audio.play().catch(e => console.log("Erro ao tocar música:", e));
         this.isPlaying = true;
     },
@@ -76,18 +166,35 @@ const musicSystem = {
     pause() {
         this.audio.pause();
         this.isPlaying = false;
+        
+        // Retoma a música de fundo quando a jukebox para
+        if (this.backgroundAudio && this.backgroundAudio.paused) {
+            this.backgroundAudio.play().catch(console.log);
+        }
     },
 
     nextTrack() {
         this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
         this.loadTrack(this.currentTrack);
-        if (this.isPlaying) this.play();
+        if (this.isPlaying) {
+            // Pausa a música de fundo ao trocar de faixa
+            if (this.backgroundAudio && !this.backgroundAudio.paused) {
+                this.backgroundAudio.pause();
+            }
+            this.play();
+        }
     },
 
     prevTrack() {
         this.currentTrack = (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
         this.loadTrack(this.currentTrack);
-        if (this.isPlaying) this.play();
+        if (this.isPlaying) {
+            // Pausa a música de fundo ao trocar de faixa
+            if (this.backgroundAudio && !this.backgroundAudio.paused) {
+                this.backgroundAudio.pause();
+            }
+            this.play();
+        }
     },
 
     getCurrentTrack() {
@@ -97,8 +204,10 @@ const musicSystem = {
 
 musicSystem.init();
 
+// --- 5. MAPA E PAREDES ---
 const quadradimWidth = 64;
 const quadradimHeight = 32;
+const wallHeight = 70;
 const mapWidth = 10;
 const mapHeight = 10;
 
@@ -116,20 +225,22 @@ function generateMaps() {
                     x,
                     y,
                     type: "normal",
-                    color: m === 0 ? "#cceeff" : "#d2f0d2"
+                    color: m === 0 ? "#cceeff" : "#d2f0d2",
+                    hasWallX: (x === 0),
+                    hasWallY: (y === 0)
                 };
             }
         }
     }
+
+    maps[0].data[0][3].frame = { id: "quadro1", side: "y" };
+    maps[0].data[4][0].frame = { id: "quadro2", side: "x" };
 
     maps[0].data[0][5].type = "obj:portal";
     maps[0].data[0][5].color = "#ff6666";
 
     maps[1].data[9][3].type = "obj:portal";
     maps[1].data[9][3].color = "#ff6666";
-
-    // maps[0].data[4][4].type = "obj:computador:onStep";
-    // maps[0].data[4][4].color = "#9999ff";
 
     maps[0].data[6][3].type = "obj:livro:onClick:Não é um livro qualquer, mas não tem nada aqui ainda, meu amor";
     maps[0].data[6][3].color = "#ffcc00";
@@ -139,7 +250,6 @@ function generateMaps() {
 
     maps[0].data[0][8].type = "obj:jukebox:onClick";
     maps[0].data[0][8].color = "#ffcc00";
-
 }
 
 generateMaps();
@@ -150,8 +260,17 @@ let map = maps[currentMapIndex].data;
 function cartToIso(x, y) {
     return {
         x: (x - y) * quadradimWidth / 2 + canvas.width / 2,
-        y: (x + y) * quadradimHeight / 2
+        y: (x + y) * quadradimHeight / 2 + 100
     };
+}
+
+function isPointInWall(px, py, x, y, side) {
+    const pos = cartToIso(x, y);
+    if (side === 'y') {
+        return px >= pos.x + 40 && px <= pos.x + 62 && py >= pos.y - 65 && py <= pos.y + 0;
+    } else {
+        return px >= pos.x + 2 && px <= pos.x + 24 && py >= pos.y - 65 && py <= pos.y + 0;
+    }
 }
 
 function isPointConvert(px, py, tileX, tileY) {
@@ -163,8 +282,82 @@ function isPointConvert(px, py, tileX, tileY) {
     return dx / (quadradimWidth / 2) + dy / (quadradimHeight / 2) <= 1;
 }
 
+function drawFrameOnWall(x, y, side, artId) {
+    const pos = cartToIso(x, y);
+    const img = artImages[artId];
+
+    ctx.save();
+    if (side === 'y') {
+        ctx.fillStyle = "#331a00"; // Cor de madeira mais escura
+        ctx.beginPath();
+        ctx.moveTo(pos.x + 42, pos.y - 10); ctx.lineTo(pos.x + 60, pos.y - 2);
+        ctx.lineTo(pos.x + 60, pos.y - 55); ctx.lineTo(pos.x + 42, pos.y - 63);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Imagem (Preview real ampliado)
+        if (img && img.complete) {
+            ctx.beginPath();
+            ctx.moveTo(pos.x + 45, pos.y - 15); ctx.lineTo(pos.x + 57, pos.y - 10);
+            ctx.lineTo(pos.x + 57, pos.y - 50); ctx.lineTo(pos.x + 45, pos.y - 55);
+            ctx.clip();
+            ctx.drawImage(img, pos.x + 45, pos.y - 55, 12, 45);
+        }
+    } else {
+        ctx.fillStyle = "#331a00";
+        ctx.beginPath();
+        ctx.moveTo(pos.x + 4, pos.y - 2); ctx.lineTo(pos.x + 22, pos.y - 10);
+        ctx.lineTo(pos.x + 22, pos.y - 63); ctx.lineTo(pos.x + 4, pos.y - 55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Imagem (Preview real ampliado)
+        if (img && img.complete) {
+            ctx.beginPath();
+            ctx.moveTo(pos.x + 7, pos.y - 10); ctx.lineTo(pos.x + 19, pos.y - 15);
+            ctx.lineTo(pos.x + 19, pos.y - 55); ctx.lineTo(pos.x + 7, pos.y - 50);
+            ctx.clip();
+            ctx.drawImage(img, pos.x + 7, pos.y - 55, 12, 45);
+        }
+    }
+    ctx.restore();
+}
+
 function drawTile(tile) {
     const { x, y } = cartToIso(tile.x, tile.y);
+
+    if (tile.hasWallY) {
+        ctx.fillStyle = "#a8c0d8";
+        ctx.beginPath();
+        ctx.moveTo(x + quadradimWidth / 2, y);
+        ctx.lineTo(x + quadradimWidth, y + quadradimHeight / 2);
+        ctx.lineTo(x + quadradimWidth, y + quadradimHeight / 2 - wallHeight);
+        ctx.lineTo(x + quadradimWidth / 2, y - wallHeight);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.1)";
+        ctx.stroke();
+        if (tile.frame && tile.frame.side === 'y') drawFrameOnWall(tile.x, tile.y, 'y', tile.frame.id);
+    }
+
+    if (tile.hasWallX) {
+        ctx.fillStyle = "#8da3ba";
+        ctx.beginPath();
+        ctx.moveTo(x, y + quadradimHeight / 2);
+        ctx.lineTo(x + quadradimWidth / 2, y);
+        ctx.lineTo(x + quadradimWidth / 2, y - wallHeight);
+        ctx.lineTo(x, y + quadradimHeight / 2 - wallHeight);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.1)";
+        ctx.stroke();
+        if (tile.frame && tile.frame.side === 'x') drawFrameOnWall(tile.x, tile.y, 'x', tile.frame.id);
+    }
+
     ctx.beginPath();
     ctx.moveTo(x, y + quadradimHeight / 2);
     ctx.lineTo(x + quadradimWidth / 2, y);
@@ -173,7 +366,7 @@ function drawTile(tile) {
     ctx.closePath();
     ctx.fillStyle = tile.color;
     ctx.fill();
-    ctx.strokeStyle = "#888";
+    ctx.strokeStyle = "rgba(0,0,0,0.1)";
     ctx.stroke();
 }
 
@@ -183,15 +376,12 @@ function drawMap() {
 
         if (tile.type.startsWith("obj:")) {
             const [_, nome] = tile.type.split(":");
-
             const sprite = objectSprites[nome];
             if (sprite && sprite.complete && sprite.naturalHeight > 0) {
                 const pos = cartToIso(tile.x, tile.y);
-
-
-                width = 50;
-                height = 56;
-                offsetY = -56;
+                const width = 50;
+                const height = 56;
+                const offsetY = -45;
 
                 ctx.drawImage(
                     sprite,
@@ -222,8 +412,12 @@ function drawPlayer() {
     );
 }
 
+// --- 5. RENDERIZAÇÃO E ATUALIZAÇÃO ---
 function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Desenha primeiro o fundo estrelado animado
+    drawAnimatedBackground();
+
+    // Depois desenha o jogo isométrico por cima
     drawMap();
     drawPlayer();
 }
@@ -276,10 +470,6 @@ function update() {
             player.direction = deltaX > 0 ? "right" : "left";
         } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
             player.direction = deltaY > 0 ? "down" : "up";
-        } else if (Math.abs(deltaX) > speed) {
-            player.direction = deltaX > 0 ? "right" : "left";
-        } else if (Math.abs(deltaY) > speed) {
-            player.direction = deltaY > 0 ? "down" : "up";
         }
     }
 
@@ -298,7 +488,6 @@ function update() {
 
     if (!moved) {
         checkPortal();
-
         const tile = map[Math.round(player.y)]?.[Math.round(player.x)];
         if (tile?.type?.startsWith("obj:")) {
             const [_, nome, modo] = tile.type.split(":");
@@ -312,33 +501,45 @@ function update() {
     requestAnimationFrame(update);
 }
 
+// --- 6. EVENTOS E UI ---
 canvas.addEventListener("click", (e) => {
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
 
+    // Percorre o mapa para detectar cliques
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
-            if (isPointConvert(mouseX, mouseY, x, y)) {
-                const tile = map[y][x];
+            const tile = map[y][x];
 
+            // 1. PRIORIDADE: Verificar se clicou na parede onde tem o Quadro
+            if (tile.frame) {
+                if (isPointInWall(mouseX, mouseY, x, y, tile.frame.side)) {
+                    if (typeof artGallery !== 'undefined') {
+                        const art = artGallery[tile.frame.id];
+                        if (art) {
+                            openFrameModal(art.url, art.titulo || art.title, art.desc || art.description);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // 2. Verificar se clicou no chão (Tiles e Objetos no chão)
+            if (isPointConvert(mouseX, mouseY, x, y)) {
+                // Verificar Clique em Objetos (Jukebox, etc)
                 if (tile.type.startsWith("obj:")) {
                     const [_, nome, modo, conteudo] = tile.type.split(":");
-
                     if (modo === "onClick") {
                         if (nome === "jukebox") {
                             openModal("Jukebox", "", true);
                         } else {
-                            openModal(`Você clicou em um(a) ${nome}`, conteudo);
+                            openModal(nome.charAt(0).toUpperCase() + nome.slice(1), conteudo);
                         }
                         return;
                     }
-
-                    closeModal();
-                    target.x = x;
-                    target.y = y;
-                    return;
                 }
 
+                // Caminhada Normal
                 closeModal();
                 target.x = x;
                 target.y = y;
@@ -348,4 +549,27 @@ canvas.addEventListener("click", (e) => {
     }
 });
 
-update();
+// Controle da música de fundo
+function toggleBackgroundMusic() {
+    const statusSpan = document.getElementById('bg-music-status');
+    
+    if (musicSystem.backgroundAudio.paused) {
+        musicSystem.backgroundAudio.play().catch(console.log);
+        if (statusSpan) {
+            statusSpan.textContent = 'ON';
+            statusSpan.style.color = '#4caf50';
+        }
+    } else {
+        musicSystem.backgroundAudio.pause();
+        if (statusSpan) {
+            statusSpan.textContent = 'OFF';
+            statusSpan.style.color = '#f44336';
+        }
+    }
+}
+
+
+window.onload = () => {
+    preloadArt();
+    update();
+};
