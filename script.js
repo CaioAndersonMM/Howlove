@@ -154,6 +154,11 @@ const musicSystem = {
     },
 
     play() {
+        // Pausa a música de fundo quando a jukebox toca
+        if (this.backgroundAudio && !this.backgroundAudio.paused) {
+            this.backgroundAudio.pause();
+        }
+        
         this.audio.play().catch(e => console.log("Erro ao tocar música:", e));
         this.isPlaying = true;
     },
@@ -161,18 +166,35 @@ const musicSystem = {
     pause() {
         this.audio.pause();
         this.isPlaying = false;
+        
+        // Retoma a música de fundo quando a jukebox para
+        if (this.backgroundAudio && this.backgroundAudio.paused) {
+            this.backgroundAudio.play().catch(console.log);
+        }
     },
 
     nextTrack() {
         this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
         this.loadTrack(this.currentTrack);
-        if (this.isPlaying) this.play();
+        if (this.isPlaying) {
+            // Pausa a música de fundo ao trocar de faixa
+            if (this.backgroundAudio && !this.backgroundAudio.paused) {
+                this.backgroundAudio.pause();
+            }
+            this.play();
+        }
     },
 
     prevTrack() {
         this.currentTrack = (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
         this.loadTrack(this.currentTrack);
-        if (this.isPlaying) this.play();
+        if (this.isPlaying) {
+            // Pausa a música de fundo ao trocar de faixa
+            if (this.backgroundAudio && !this.backgroundAudio.paused) {
+                this.backgroundAudio.pause();
+            }
+            this.play();
+        }
     },
 
     getCurrentTrack() {
