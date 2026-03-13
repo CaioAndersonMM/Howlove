@@ -526,40 +526,6 @@ canvas.addEventListener("click", (e) => {
         }
     }
 });
-// 7. Funções de UI
-function openPatchNotesSection() { document.getElementById('patch-notes').style.display = 'block'; }
-function closePatchNotes() { document.getElementById('patch-notes').style.display = 'none'; }
-function openInfoModal(t, txt) {
-    const m = document.querySelector('.modal-info');
-    m.style.display = 'block';
-    m.querySelector('.modal-text-info').innerHTML = `<b>${t}</b><br>${txt}`;
-}
-function closeInfoModal() { document.querySelector('.modal-info').style.display = 'none'; }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-// Função para abrir modal de quadros
-function openFrameModal(imageUrl, title, description) {
-    const modal = document.getElementById('modal');
-    const modalText = document.getElementById('modal-text');
-    
-    modalText.innerHTML = `
-        <div style="text-align: center;">
-            <div style="font-size: 1.3em; margin-bottom: 12px; font-weight: bold;">
-                🖼️ ${title}
-            </div>
-            <div style="margin: 12px 0;">
-                <img src="${imageUrl}" 
-                     style="max-width: 280px; max-height: 200px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
-                     alt="${title}">
-            </div>
-            <div style="font-size: 0.95em; margin-top: 10px; line-height: 1.3;">
-                ${description}
-            </div>
-        </div>
-    `;
-    
-    modal.style.display = 'block';
-}
 
 // Controle da música de fundo
 function toggleBackgroundMusic() {
