@@ -1,11 +1,26 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// --- SISTEMA DE ESTRELAS E FUNDO ---
+// --- 1. Artes - quadrosposts.js ---
+
+const artImages = {};
+function preloadArt() {
+    // Verifica se a galeria existe no arquivo externo quadrosposts.js
+    if (typeof artGallery !== 'undefined') {
+        Object.keys(artGallery).forEach(id => {
+            const img = new Image();
+            img.src = artGallery[id].url;
+            artImages[id] = img;
+        });
+    } else {
+        console.warn("Aviso: 'artGallery' não encontrada. Verifique o arquivo quadrosposts.js.");
+    }
+}
+
+// --- 2. SISTEMA DE ESTRELAS E FUNDO ---
 const stars = [];
 const meteors = [];
 
-// Inicialização das estrelas
 for (let i = 0; i < 150; i++) {
     stars.push({
         x: Math.random() * canvas.width,
@@ -59,29 +74,20 @@ function drawAnimatedBackground() {
     });
 }
 
-// --- CONFIGURAÇÕES DO JOGADOR ---
+// --- 3. CONFIGURAÇÕES DO JOGADOR E OBJETOS ---
 const playerImg = new Image();
 playerImg.src = "assets/player.png";
 
 const player = {
-    x: 5,
-    y: 5,
-    frame: 0,
-    frameCount: 4,
-    frameWidth: 20,
-    frameHeight: 30,
-    animSpeed: 0.2,
-    animTimer: 0,
-    moving: false,
-    direction: "idle"
+    x: 5, y: 5,
+    frame: 0, frameCount: 4,
+    frameWidth: 20, frameHeight: 30,
+    animSpeed: 0.2, animTimer: 0,
+    moving: false, direction: "idle"
 };
 
 const playerSprites = {
-    idle: new Image(),
-    left: new Image(),
-    right: new Image(),
-    up: new Image(),
-    down: new Image()
+    idle: new Image(), left: new Image(), right: new Image(), up: new Image(), down: new Image()
 };
 
 const objectSprites = {};
@@ -101,7 +107,7 @@ playerSprites.down.src = "assets/playerdown.png";
 
 const target = { x: 5, y: 5 };
 
-// --- SISTEMA DE MÚSICA ---
+// --- 4. SISTEMA DE MÚSICA ---
 const musicSystem = {
     currentTrack: 0,
     isPlaying: false,
@@ -156,7 +162,7 @@ const musicSystem = {
 
 musicSystem.init();
 
-// --- MAPA E PAREDES ---
+// --- 5. MAPA E PAREDES ---
 const quadradimWidth = 64;
 const quadradimHeight = 32;
 const wallHeight = 70;
@@ -178,12 +184,15 @@ function generateMaps() {
                     y,
                     type: "normal",
                     color: m === 0 ? "#cceeff" : "#d2f0d2",
-                    hasWallX: (x === 0), 
+                    hasWallX: (x === 0),
                     hasWallY: (y === 0)
                 };
             }
         }
     }
+
+    maps[0].data[0][3].frame = { id: "quadro1", side: "y" };
+    maps[0].data[4][0].frame = { id: "quadro2", side: "x" };
 
     maps[0].data[0][5].type = "obj:portal";
     maps[0].data[0][5].color = "#ff6666";
@@ -213,6 +222,15 @@ function cartToIso(x, y) {
     };
 }
 
+function isPointInWall(px, py, x, y, side) {
+    const pos = cartToIso(x, y);
+    if (side === 'y') {
+        return px >= pos.x + 40 && px <= pos.x + 62 && py >= pos.y - 65 && py <= pos.y + 0;
+    } else {
+        return px >= pos.x + 2 && px <= pos.x + 24 && py >= pos.y - 65 && py <= pos.y + 0;
+    }
+}
+
 function isPointConvert(px, py, tileX, tileY) {
     const iso = cartToIso(tileX, tileY);
     const centerX = iso.x + quadradimWidth / 2;
@@ -222,9 +240,56 @@ function isPointConvert(px, py, tileX, tileY) {
     return dx / (quadradimWidth / 2) + dy / (quadradimHeight / 2) <= 1;
 }
 
+function drawFrameOnWall(x, y, side, artId) {
+    const pos = cartToIso(x, y);
+    const img = artImages[artId];
+
+    ctx.save();
+    if (side === 'y') {
+        ctx.fillStyle = "#331a00"; // Cor de madeira mais escura
+        ctx.beginPath();
+        ctx.moveTo(pos.x + 42, pos.y - 10); ctx.lineTo(pos.x + 60, pos.y - 2);
+        ctx.lineTo(pos.x + 60, pos.y - 55); ctx.lineTo(pos.x + 42, pos.y - 63);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Imagem (Preview real ampliado)
+        if (img && img.complete) {
+            ctx.beginPath();
+            ctx.moveTo(pos.x + 45, pos.y - 15); ctx.lineTo(pos.x + 57, pos.y - 10);
+            ctx.lineTo(pos.x + 57, pos.y - 50); ctx.lineTo(pos.x + 45, pos.y - 55);
+            ctx.clip();
+            ctx.drawImage(img, pos.x + 45, pos.y - 55, 12, 45);
+        }
+    } else {
+        ctx.fillStyle = "#331a00";
+        ctx.beginPath();
+        ctx.moveTo(pos.x + 4, pos.y - 2); ctx.lineTo(pos.x + 22, pos.y - 10);
+        ctx.lineTo(pos.x + 22, pos.y - 63); ctx.lineTo(pos.x + 4, pos.y - 55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Imagem (Preview real ampliado)
+        if (img && img.complete) {
+            ctx.beginPath();
+            ctx.moveTo(pos.x + 7, pos.y - 10); ctx.lineTo(pos.x + 19, pos.y - 15);
+            ctx.lineTo(pos.x + 19, pos.y - 55); ctx.lineTo(pos.x + 7, pos.y - 50);
+            ctx.clip();
+            ctx.drawImage(img, pos.x + 7, pos.y - 55, 12, 45);
+        }
+    }
+    ctx.restore();
+}
+
 function drawTile(tile) {
     const { x, y } = cartToIso(tile.x, tile.y);
-    
+
     if (tile.hasWallY) {
         ctx.fillStyle = "#a8c0d8";
         ctx.beginPath();
@@ -235,8 +300,9 @@ function drawTile(tile) {
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.1)";
         ctx.stroke();
+        if (tile.frame && tile.frame.side === 'y') drawFrameOnWall(tile.x, tile.y, 'y', tile.frame.id);
     }
-    
+
     if (tile.hasWallX) {
         ctx.fillStyle = "#8da3ba";
         ctx.beginPath();
@@ -247,6 +313,7 @@ function drawTile(tile) {
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.1)";
         ctx.stroke();
+        if (tile.frame && tile.frame.side === 'x') drawFrameOnWall(tile.x, tile.y, 'x', tile.frame.id);
     }
 
     ctx.beginPath();
@@ -303,11 +370,11 @@ function drawPlayer() {
     );
 }
 
-// --- RENDERIZAÇÃO E ATUALIZAÇÃO ---
+// --- 5. RENDERIZAÇÃO E ATUALIZAÇÃO ---
 function render() {
     // Desenha primeiro o fundo estrelado animado
     drawAnimatedBackground();
-    
+
     // Depois desenha o jogo isométrico por cima
     drawMap();
     drawPlayer();
@@ -392,29 +459,45 @@ function update() {
     requestAnimationFrame(update);
 }
 
-// --- EVENTOS E UI ---
+// --- 6. EVENTOS E UI ---
 canvas.addEventListener("click", (e) => {
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
 
+    // Percorre o mapa para detectar cliques
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
-            if (isPointConvert(mouseX, mouseY, x, y)) {
-                const tile = map[y][x];
+            const tile = map[y][x];
 
+            // 1. PRIORIDADE: Verificar se clicou na parede onde tem o Quadro
+            if (tile.frame) {
+                if (isPointInWall(mouseX, mouseY, x, y, tile.frame.side)) {
+                    if (typeof artGallery !== 'undefined') {
+                        const art = artGallery[tile.frame.id];
+                        if (art) {
+                            openFrameModal(art.url, art.titulo || art.title, art.desc || art.description);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // 2. Verificar se clicou no chão (Tiles e Objetos no chão)
+            if (isPointConvert(mouseX, mouseY, x, y)) {
+                // Verificar Clique em Objetos (Jukebox, etc)
                 if (tile.type.startsWith("obj:")) {
                     const [_, nome, modo, conteudo] = tile.type.split(":");
-
                     if (modo === "onClick") {
                         if (nome === "jukebox") {
                             openModal("Jukebox", "", true);
                         } else {
-                            openModal(`Você clicou em um(a) ${nome}`, conteudo);
+                            openModal(nome.charAt(0).toUpperCase() + nome.slice(1), conteudo);
                         }
                         return;
                     }
                 }
 
+                // Caminhada Normal
                 closeModal();
                 target.x = x;
                 target.y = y;
@@ -423,11 +506,10 @@ canvas.addEventListener("click", (e) => {
         }
     }
 });
-
-// Funções de UI
+// 7. Funções de UI
 function openPatchNotesSection() { document.getElementById('patch-notes').style.display = 'block'; }
 function closePatchNotes() { document.getElementById('patch-notes').style.display = 'none'; }
-function openInfoModal(t, txt) { 
+function openInfoModal(t, txt) {
     const m = document.querySelector('.modal-info');
     m.style.display = 'block';
     m.querySelector('.modal-text-info').innerHTML = `<b>${t}</b><br>${txt}`;
@@ -435,5 +517,8 @@ function openInfoModal(t, txt) {
 function closeInfoModal() { document.querySelector('.modal-info').style.display = 'none'; }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-// Início do Game Loop
-window.onload = update;
+
+window.onload = () => {
+    preloadArt();
+    update();
+};
